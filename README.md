@@ -15,7 +15,9 @@ Please cite us:
 
 
     git clone https://github.com/davidtw999/BEMPS 
+
     cd BEMPS
+
     pip install -r requirements.txt
 
 
