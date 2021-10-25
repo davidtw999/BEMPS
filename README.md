@@ -7,19 +7,32 @@ Please cite us:
 
 
 
-# How to run it
 
-## Installation
+# Installation
 1. Create virtual environment with Python 3.7 +
 2. Run following commands:
 
 
-    git clone https://github.com/davidtw999/BEMPS 
-
+    git clone https://github.com/davidtw999/BEMPS
     cd BEMPS
-
     pip install -r requirements.txt
 
 
+# Organisation
 
+The repository is organised as the following subfolders:
++ src: source code 
++ scripts: scripts for running experiments 
++ data: folder for datasets 
++ models: saved models from running experiments
 
+# Run active learning experiment
+
+To run the default experiment on SST-5 dataset, type the command below:
+
+bash scripts/run_experiment.sh
+
+The model will be saved under a base in models directory.
+Results will be saved in results.txt.
+
+You can modify the variables in scripts/run_experiment.sh for other active learning methods.
