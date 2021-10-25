@@ -12,10 +12,12 @@ Please cite us:
 1. Create virtual environment with Python 3.7 +
 2. Run following commands:
 
-
-    git clone https://github.com/davidtw999/BEMPS \
-    cd BEMPS \
-    pip install -r requirements.txt
+```
+git clone https://github.com/davidtw999/BEMPS
+cd BEMPS
+pip install -r requirements.txt
+```
+    
 
 
 ### Organisation
