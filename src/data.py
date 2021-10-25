@@ -11,12 +11,11 @@ from transformers import (
 )
 
 
-
-def convert_examples_to_features(
+## data embedding
+def data_embedding(
     examples: List[InputExample],
     tokenizer: PreTrainedTokenizer,
     max_length=None,
-    # task=None,
     label_list=None,
     output_mode=None,
 ):
@@ -54,7 +53,8 @@ def convert_examples_to_features(
     return features
 
 
-class SentenceDataProcessor(DataProcessor):
+## data processor
+class DataProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         """See base class."""""
         return self._create_examples(self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
@@ -77,23 +77,23 @@ class SentenceDataProcessor(DataProcessor):
         return examples
 
 
-class AGNewsProcessor(SentenceDataProcessor):
+class AGNewsProcessor(DataProcessor):
     def get_labels(self):
         labels = ["World", "Sports", "Business", "Sci/Tech"]
         return labels
 
-class IMDBProcessor(SentenceDataProcessor):
+class IMDBProcessor(DataProcessor):
     def get_labels(self):
         labels = ["pos", "neg"]
         return labels
 
-class PubMedProcessor(SentenceDataProcessor):
+class PubMedProcessor(DataProcessor):
     def get_labels(self):
         labels = ["BACKGROUND", "OBJECTIVE", "METHODS", "RESULTS", "CONCLUSIONS"]
         return labels
 
 
-class Sst5Processor(SentenceDataProcessor):
+class Sst5Processor(DataProcessor):
     def get_labels(self):
         labels = ["__label__1", "__label__2", "__label__3", "__label__4", "__label__5"]
         return labels

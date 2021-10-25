@@ -38,7 +38,7 @@ from transformers import (
 )
 
 from src.data import (
-    convert_examples_to_features,
+    data_embedding,
     compute_metrics,
     get_processor,
 )
@@ -56,10 +56,10 @@ from src.queryStrategy import (
 )
 
 
-
-
 logger = logging.getLogger(__name__)
 
+
+## train the deep learning models
 def train_model(args, train_dataset, model, tokenizer, acqIdx, va_dataset, processors, output_modes):
     """ Train the model """
 
@@ -197,7 +197,7 @@ def train_model(args, train_dataset, model, tokenizer, acqIdx, va_dataset, proce
 
 
 
-
+## save the txt file of recording the results
 def write_result_to_txt(save_path, results):
     fileName = save_path + "/result.txt"
     file = open(fileName, "a+")
@@ -205,9 +205,8 @@ def write_result_to_txt(save_path, results):
     file.writelines([results])
     file.close()
 
-
+## save the result by the evaluation
 def save_eval_txt(output_dir, results):
-
     output_eval_file = os.path.join(output_dir, "eval_results.txt")
     with open(output_eval_file, "w") as writer:
         logger.info("***** Eval results {} *****".format(''))
@@ -216,7 +215,7 @@ def save_eval_txt(output_dir, results):
             writer.write("%s = %s\n" % (key, str(results[key])))
 
 
-
+## evaluate the models
 def evaluate_model(args, model, tokenizer, dataType, va_dataset, prefix="", processors=None, output_modes=None):
 
     eval_task_names = ("mnli", "mnli-mm") if args.task_name == "mnli" else (args.task_name,)
@@ -231,11 +230,11 @@ def evaluate_model(args, model, tokenizer, dataType, va_dataset, prefix="", proc
             prefix = prefix + 'validataion set'
 
         elif dataType == 'test':
-            eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, test=True,
+            eval_dataset = load_examples(args, eval_task, tokenizer, test=True,
                                                    processors=processors, output_modes=output_modes)
             prefix = prefix + 'test set'
         elif dataType == 'unlabeled':
-            eval_dataset = load_and_cache_examples(args, eval_task, tokenizer, evaluate=False, test=False,
+            eval_dataset = load_examples(args, eval_task, tokenizer, evaluate=False, test=False,
                                                    processors=processors, output_modes=output_modes)
             unlabeledSample_file = os.path.join(args.output_dir, "unLabelPool.pt")
             unlabeledSample = torch.load(unlabeledSample_file)
@@ -296,7 +295,8 @@ def evaluate_model(args, model, tokenizer, dataType, va_dataset, prefix="", proc
     return results, logits
 
 
-def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False, processors=None, output_modes=None):
+## data preprocessing by the pretrained model
+def load_examples(args, task, tokenizer, evaluate=False, test=False, processors=None, output_modes=None):
 
     processor = processors[task]()
     output_mode = output_modes[task]
@@ -335,7 +335,7 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False, p
         else:
             examples = processor.get_train_examples(args.data_dir)
 
-        features = convert_examples_to_features(
+        features = data_embedding(
             examples,
             tokenizer,
             max_length=args.max_seq_length,
@@ -362,7 +362,7 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False, p
     return dataset
 
 
-
+## generate the random index
 def generate_random_indices(train_dataset, seed, initial_labelPoolSize):
 
     max_len = len(train_dataset)
@@ -375,7 +375,7 @@ def generate_random_indices(train_dataset, seed, initial_labelPoolSize):
     return label_index, unlabeled_index
 
 
-
+## generate the index of validation set
 def generate_balance_val_indices(val_dataset, seed, val_size):
     max_len = len(val_dataset)
     indices = range(max_len)
@@ -385,9 +385,8 @@ def generate_balance_val_indices(val_dataset, seed, val_size):
     return Subset(val_dataset, label_index)
 
 
-
+## generate the random index of labelled and unlabelled samples
 def generate_balance_random_indices(train_dataset, seed, tol_size, tr_size):
-
 
     max_len = len(train_dataset)
     indices = range(max_len)
@@ -405,7 +404,7 @@ def generate_balance_random_indices(train_dataset, seed, tol_size, tr_size):
     unlabeled_index = torch.LongTensor(unlabeled_index)
     return label_index, unlabeled_index
 
-
+## train and validataion split
 def split_train_val_indices(label_indices, train_dataset):
 
     shuffeled_idx = label_indices[torch.randperm(label_indices.size()[0])]
@@ -468,10 +467,10 @@ def main():
 
     logger.info("Training/evaluation parameters %s", args)
 
-    # Training
-    train_dataset = load_and_cache_examples(args, args.task_name, tokenizer, evaluate=False,
+    # generate training set
+    train_dataset = load_examples(args, args.task_name, tokenizer, evaluate=False,
                                             processors=processors, output_modes=output_modes)
-
+    ## active learning starts
     if args.continue_acq == 0:
 
         ## load tensordataset object by passing tokenizer ebeddmming
@@ -548,7 +547,7 @@ def main():
             torch.save(torch.LongTensor(updated_unlab_idxs), os.path.join(lpPath, 'unLabelPool_' + str(acqIdx) + '.pt'))
 
 
-    ## two optimal settings: inner + kmean, outer +kmean_pp
+    ## continue active learning iteration based on the saved model
     elif args.continue_acq == 1:
 
         probPath = os.path.join(args.output_dir, 'probsEnsemble')
@@ -629,6 +628,7 @@ def main():
             torch.save(torch.LongTensor(updated_unlab_idxs), os.path.join(lpPath, 'unLabelPool_' + str(acqIdx) + '.pt'))
 
 
+## get index
 def get_indices(args, fileName):
 
     fileinDir = os.path.join(args.output_dir, fileName)
@@ -639,7 +639,7 @@ def get_indices(args, fileName):
         raise ValueError("Task not found: %s" % (fileinDir))
     return indices
 
-
+## index update
 def update_labeled_and_unlabeled_pool(sampled_index, label_index, unlabeled_index):
     sampled_unlabeled_element = [unlabeled_index[x] for x in sampled_index]
     # print(sampled_unlabeled_element)
@@ -651,7 +651,7 @@ def update_labeled_and_unlabeled_pool(sampled_index, label_index, unlabeled_inde
 
 
 
-
+## acquisition functions
 def query_method(prob_X_E_Y, sampling, batch_size):
 
     if batch_size == 1:
@@ -698,14 +698,14 @@ def query_method(prob_X_E_Y, sampling, batch_size):
 
 
 
-
+## compute metrics of the model performance
 def compute_mean_metrics(args, probs_X_E_Y, processors, output_modes):
     ## use the mean prob to classify, or we can use majority vote later
     probsMean_X_Y = torch.mean(probs_X_E_Y, dim=1)
     preds = torch.argmax(probsMean_X_Y, dim=-1)
 
     if args.task_name in ["imdb", "agnews", "pubmed", "sst5"]:
-        test_dataset = load_and_cache_examples(args, args.task_name, '', evaluate=False, test=True,
+        test_dataset = load_examples(args, args.task_name, '', evaluate=False, test=True,
                                                processors=processors, output_modes=output_modes)
         labels = test_dataset[:][-1]
 
@@ -727,7 +727,7 @@ def compute_mean_metrics(args, probs_X_E_Y, processors, output_modes):
                 "SensRecall": recall_score(y_true=labels, y_pred=preds, average='weighted')}
 
 
-
+## calculate all the probabilities of the ensemble models
 def get_probs_from_ensembleModels(args, fileName, addSeed):
 
     logits = []
