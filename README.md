@@ -1,13 +1,13 @@
 # BEMPS
 
-This is the code for our paper: Diversity Enhanced Active Learning with StrictlyProper Scoring Rules.
+This is the code repository for the NeurIPS (2021) paper: Diversity Enhanced Active Learning with StrictlyProper Scoring Rules. 
+We provide non-batch and batch mode active learning approaches named BEMPS (Bayesian estimate of mean proper scores) based on the ELR framework.
 
 
 Please cite our paper by using the bibex below:
 ```cite
 
 ```
-
 
 
 ### Installation
@@ -19,12 +19,10 @@ git clone https://github.com/davidtw999/BEMPS
 cd BEMPS
 pip install -r requirements.txt
 ```
-    
 
 
-### Organisation
+### Folder information
 
-The repository is organised as the following subfolders:
 + src: source code 
 + scripts: scripts for running experiments 
 + data: folder for datasets 
