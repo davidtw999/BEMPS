@@ -44,25 +44,18 @@ from src.data import (
 )
 
 from src.queryStrategy import (
-    bald,
-    mocu_wmocu,
     bemps_coremse,
     bemps_corelog,
     max_entropy_acquisition_function,
     random_queries,
     bemps_coremse_batch,
-    mocu_wmocu_batch,
     bemps_corelog_batch,
     random_queries_batch,
-    lm_clustering,
     bemps_coremse_batch_topk,
     bemps_corelog_batch_topk,
-    badge_clustering
 )
 
-from src.badge import (
-    get_scores_or_vectors_badge
-)
+
 
 
 logger = logging.getLogger(__name__)
