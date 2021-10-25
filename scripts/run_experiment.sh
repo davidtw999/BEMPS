@@ -8,39 +8,51 @@
 ### pubmed_415Training_balance_5
 ### SET indicates subfolder names (pubmed_1080Training_imbalance_5 and etc)
 ### agnews_5170_1000_1900_b4
-### pretrainedLM
 
+
+## change the values of the variables below for non-batch or batch version
 DATA_DIR=data
-TASK_NAME=pubmed
-SET=pubmed_415Training_balance_5
+TASK_NAME=sst5
+SET=sst5_8544_2210
 MODEL_TYPE=distilbert
 MODEL_NAME=distilbert-base-uncased
 SAVE_MODEL_NAME=distilbert_base_uncased
 SEED=100
-INCREMENT=10
-SAMPLING=wmocubatch
+## number of samples are acquired
+INCREMENT=50
+## acquisition methods names
+SAMPLING=coremsebatch
+## number of ensemble models
 NOENSEMBLE=5
+## initial labelled samples
 INILABELPOOLSIZE=26
+## initial labelled samples for the traininig set
 INITRAINSIZE=20
-MAXACQSIZE=50
+## maximum acquired samples
+MAXACQSIZE=550
+## seed number
 INILBSEED=100
+## ensemble seed
 ENMLSEED=1234
+## continue experiment by the saved models
 CONTINUE=0
 
-
+## set up the path of saving the models
 OUTPUT=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
-### end
 
-train() {
+## active learning function
+runExp() {
   python -m src.active_learning \
     --model_type $MODEL_TYPE \
     --model_name_or_path $MODEL_NAME \
     --task_name $TASK_NAME \
+    --do_train \
+    --do_eval \
     --per_gpu_eval_batch_size 16 \
     --per_gpu_train_batch_size 16 \
     --data_dir $DATA_DIR/$TASK_NAME/$SET \
     --max_seq_length 128 \
-    --learning_rate 2e-4 \
+    --learning_rate 2e-5 \
     --num_train_epochs 30.0 \
     --output_dir $1 \
     --new_output_dir $1 \
@@ -57,14 +69,37 @@ train() {
     --continue_acq $CONTINUE
 }
 
-p=1
-i=1
-j=1577
-maxave=1
+
+## set up the random seeds for other runs
 f=$OUTPUT
-while [ $p -le $maxave ]; do
-  train $f $SEED
-  p=$(($p + $i))
-  SEED=$(($SEED + $j))
-  f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
-done
+runExp $f $SEED
+
+SEED=1677
+f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+runExp $f $SEED
+
+SEED=7985
+f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+runExp $f $SEED
+
+SEED=12716
+f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+runExp $f $SEED
+
+SEED=14293
+f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+runExp $f $SEED
+
+
+## use loop for other runs
+#p=1
+#i=1
+#j=999
+#maxave=5
+#f=$OUTPUT
+#while [ $p -le $maxave ]; do
+#  runExp $f $SEED
+#  p=$(($p + $i))
+#  SEED=$(($SEED + $j))
+#  f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+#done

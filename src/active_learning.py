@@ -674,13 +674,7 @@ def update_labeled_and_unlabeled_pool(sampled_index, label_index, unlabeled_inde
 def query_method(prob_X_E_Y, sampling, batch_size):
 
     if batch_size == 1:
-        if sampling == "bald":
-            rr = bald(prob_X_E_Y, prob_X_E_Y.shape[1])
-        elif sampling == "wmocu":
-            rr = mocu_wmocu(prob_X_E_Y, 1, 0.3)
-        elif sampling == "mocu":
-            rr = mocu_wmocu(prob_X_E_Y, 0, 0.3)
-        elif sampling == 'coremse':
+        if sampling == 'coremse':
             rr = bemps_coremse(prob_X_E_Y, 0.3)
         elif sampling == 'corelog':
             rr = bemps_corelog(prob_X_E_Y, 0.3)
@@ -694,21 +688,13 @@ def query_method(prob_X_E_Y, sampling, batch_size):
             winner_index = np.array([winner_index.item()])
         else:
             winner_index = np.array([rr])
-
         return winner_index
 
     else:
         if sampling == 'coremsebatch':
             winner_index = bemps_coremse_batch(prob_X_E_Y, batch_size, 0.3, 0.5)
             return winner_index
-        elif sampling == 'wmocubatch':
-            winner_index = mocu_wmocu_batch(prob_X_E_Y, 1, 0.3, batch_size, 0.5)
-            return winner_index
-        elif sampling == 'mocubatch':
-            winner_index = mocu_wmocu_batch(prob_X_E_Y, 0, 0.3, batch_size, 0.5)
-            return winner_index
         elif sampling == 'corelogbatch':
-
             winner_index = bemps_corelog_batch(prob_X_E_Y, batch_size, 0.3, 0.5)
             return winner_index
         elif sampling == 'randbatch':
@@ -718,21 +704,11 @@ def query_method(prob_X_E_Y, sampling, batch_size):
             rr = max_entropy_acquisition_function(prob_X_E_Y)
             winner_index = rr.topk(batch_size).indices.numpy()
             return winner_index
-        elif sampling == "baldbatch":
-            rr = bald(prob_X_E_Y, prob_X_E_Y.shape[1])
-            winner_index = rr.topk(batch_size).indices.numpy()
-            return winner_index
         elif sampling == 'coremsetopk':
             winner_index = bemps_coremse_batch_topk(prob_X_E_Y, batch_size, 0.3)
             return winner_index
         elif sampling == 'corelogtopk':
             winner_index = bemps_corelog_batch_topk(prob_X_E_Y, batch_size, 0.3)
-            return winner_index
-        elif sampling == 'pretrainedLM':
-            winner_index = lm_clustering(prob_X_E_Y, batch_size)
-            return winner_index
-        elif sampling == 'badge':
-            winner_index = badge_clustering(prob_X_E_Y, batch_size)
             return winner_index
 
         else:
