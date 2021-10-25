@@ -460,13 +460,11 @@ def main():
     if args.task_name not in processors:
         raise ValueError("Task not found: %s" % (args.task_name))
 
-    if args.sampling != "alps":
-        args.head = "AutoModelForSequenceClassification"
-    else:
-        args.head = 'AutoModelForMaskedLM'
+
+    args.head = "AutoModelForSequenceClassification"
+
     model, tokenizer = src.setup.load_pretrainedModel(args, processors, output_modes)
 
-    # model1 = copy.deepcopy(model)
 
     logger.info("Training/evaluation parameters %s", args)
 
@@ -503,7 +501,6 @@ def main():
                 raise ValueError("Sampled_dataset not found: %s" % ('labeledPool.pt'))
 
             temp_seed = args.seed
-            scores = []
 
             for eachM in range(args.ensemble):
 
@@ -521,10 +518,6 @@ def main():
 
                 temp_seed = temp_seed + args.ensemble_model_seed
 
-                if (args.sampling == 'badge'):
-                    scores_or_vectors = get_scores_or_vectors_badge(train_dataset, args, model1, tokenizer)
-                    scores.append(scores_or_vectors)
-
 
             logger.info("\n\nACQUIRING %sTH SAMPLE \n\n", acqIdx)
 
@@ -537,12 +530,9 @@ def main():
             labeled_indices = get_indices(args, 'labeledPool.pt')
             unlabel_indices = get_indices(args, 'unLabelPool.pt')
 
-            if (args.sampling == 'badge'):
-                probsULP_X_E_Y = torch.mean(torch.stack(scores), dim=0)
-                probsULP_X_E_Y = probsULP_X_E_Y[unlabel_indices]
-            else:
-                probsULP_X_E_Y = get_probs_from_ensembleModels(args, 'unlabeledTensor.pt', args.ensemble_model_seed)
-                torch.save(probsULP_X_E_Y, os.path.join(probPath, 'unLBProbsTensor_' + str(acqIdx) + '.pt'))
+
+            probsULP_X_E_Y = get_probs_from_ensembleModels(args, 'unlabeledTensor.pt', args.ensemble_model_seed)
+            torch.save(probsULP_X_E_Y, os.path.join(probPath, 'unLBProbsTensor_' + str(acqIdx) + '.pt'))
 
 
             sampled_index = query_method(probsULP_X_E_Y, args.sampling, args.acq_batch_size)
@@ -615,18 +605,17 @@ def main():
             torch.save(probsTest_X_E_Y, os.path.join(probPath, 'testProbsTensor_' + str(acqIdx) + '.pt'))
 
 
-            ## add wray's metric here
+            ## compute the metrics of the performance
             res = compute_mean_metrics(args, probsTest_X_E_Y)
 
             probsULP_X_E_Y = get_probs_from_ensembleModels(args, 'unlabeledTensor.pt', args.ensemble_model_seed)
-            # print(probsULP_X_E_Y.shape)
+
             torch.save(probsULP_X_E_Y, os.path.join(probPath, 'unLBProbsTensor_' + str(acqIdx) + '.pt'))
 
             sampled_index = query_method(probsULP_X_E_Y, args.sampling, args.acq_batch_size)
 
             labeled_indices = get_indices(args, 'labeledPool.pt')
             unlabel_indices = get_indices(args, 'unLabelPool.pt')
-            # print(sampled_index)
 
             updated_lab_idxs, updated_unlab_idxs = update_labeled_and_unlabeled_pool(sampled_index, labeled_indices.tolist(),
                                                                                      unlabel_indices.tolist())
@@ -663,14 +652,13 @@ def update_labeled_and_unlabeled_pool(sampled_index, label_index, unlabeled_inde
 
 
 
-
 def query_method(prob_X_E_Y, sampling, batch_size):
 
     if batch_size == 1:
         if sampling == 'coremse':
-            rr = bemps_coremse(prob_X_E_Y, 0.3)
+            rr = bemps_coremse(prob_X_E_Y, 0.0939)
         elif sampling == 'corelog':
-            rr = bemps_corelog(prob_X_E_Y, 0.3)
+            rr = bemps_corelog(prob_X_E_Y, 0.0939)
         elif sampling == 'uncertainty':
             rr = max_entropy_acquisition_function(prob_X_E_Y)
         elif sampling == 'rand':
@@ -685,10 +673,10 @@ def query_method(prob_X_E_Y, sampling, batch_size):
 
     else:
         if sampling == 'coremsebatch':
-            winner_index = bemps_coremse_batch(prob_X_E_Y, batch_size, 0.3, 0.5)
+            winner_index = bemps_coremse_batch(prob_X_E_Y, batch_size, 0.0939, 0.5)
             return winner_index
         elif sampling == 'corelogbatch':
-            winner_index = bemps_corelog_batch(prob_X_E_Y, batch_size, 0.3, 0.5)
+            winner_index = bemps_corelog_batch(prob_X_E_Y, batch_size, 0.0939, 0.5)
             return winner_index
         elif sampling == 'randbatch':
             winner_index = random_queries_batch(prob_X_E_Y.shape[0], batch_size)
@@ -698,10 +686,10 @@ def query_method(prob_X_E_Y, sampling, batch_size):
             winner_index = rr.topk(batch_size).indices.numpy()
             return winner_index
         elif sampling == 'coremsetopk':
-            winner_index = bemps_coremse_batch_topk(prob_X_E_Y, batch_size, 0.3)
+            winner_index = bemps_coremse_batch_topk(prob_X_E_Y, batch_size, 0.0939)
             return winner_index
         elif sampling == 'corelogtopk':
-            winner_index = bemps_corelog_batch_topk(prob_X_E_Y, batch_size, 0.3)
+            winner_index = bemps_corelog_batch_topk(prob_X_E_Y, batch_size, 0.0939)
             return winner_index
 
         else:

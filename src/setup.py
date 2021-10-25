@@ -188,17 +188,7 @@ def get_arguments():
 
     # Additional arguments for active learning
     parser.add_argument("--sampling", type=str, help="Acquisition function for active learning.")
-    # parser.add_argument("--query_size", default=0, type=int, help="Size of acquisition")
-    parser.add_argument(
-        "--masked", action="store_true", help="Set this flag if want input masked for active learning"
-    )
 
-    parser.add_argument(
-        "--mlm", default=True, type=bool, help="Train with masked-language modeling loss instead of language modeling."
-    )
-    parser.add_argument(
-        "--mlm_probability", type=float, default=0.15, help="Ratio of tokens to mask for masked language modeling loss"
-    )
 
 
     parser.add_argument("--sampledindices", default=None, type=list, help="Whether to run AL.")
