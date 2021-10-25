@@ -34,7 +34,13 @@ To run the default experiment on SST-5 dataset, type the command below:
 
 `$ bash scripts/run_experiment.sh`
 
-The model will be saved under a base in models directory.
-Results will be saved in results.txt.
+The model will be saved in 'models' directory.
+Results will be saved in 'results.txt'.
 
 You can modify the variables in scripts/run_experiment.sh for other active learning methods.
+
+##### Notes:
+
+Download the other datasets from online resources before run the script.
+
+
