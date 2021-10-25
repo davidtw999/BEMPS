@@ -30,7 +30,7 @@ The repository is organised as the following subfolders:
 
 To run the default experiment on SST-5 dataset, type the command below:
 
-bash scripts/run_experiment.sh
+`$ bash scripts/run_experiment.sh
 
 The model will be saved under a base in models directory.
 Results will be saved in results.txt.
