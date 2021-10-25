@@ -3,8 +3,10 @@
 This is the code for our paper: Diversity Enhanced Active Learning with StrictlyProper Scoring Rules.
 
 
-Please cite us:
+Please cite our paper by using the bibex below:
+```cite
 
+```
 
 
 
@@ -39,7 +41,7 @@ Results will be saved in 'results.txt'.
 
 You can modify the variables in scripts/run_experiment.sh for other active learning methods.
 
-##### Notes:
+#### Notes:
 
 Download the other datasets from online resources before run the script.
 
