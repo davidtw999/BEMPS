@@ -17,7 +17,7 @@ SET=sst5_8544_2210
 MODEL_TYPE=distilbert
 MODEL_NAME=distilbert-base-uncased
 SAVE_MODEL_NAME=distilbert_base_uncased
-SEED=2019
+SEED=1677
 ## number of samples are acquired
 INCREMENT=50
 ## acquisition methods names
@@ -74,24 +74,24 @@ runExp() {
 f=$OUTPUT
 runExp $f $SEED
 
-#SEED=1677
-#f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
-#runExp $f $SEED
-#
-#SEED=7985
-#f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
-#runExp $f $SEED
-
-SEED=5914
+SEED=7985
 f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
 runExp $f $SEED
 
-SEED=42
+SEED=84561
+f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+runExp $f $SEED
+
+SEED=187541
+f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+runExp $f $SEED
+
+SEED=459781
 f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
 runExp $f $SEED
 
 
-## use loop for other runs
+## use loop for other runs and setup random seed for j variable
 #p=1
 #i=1
 #j=999
