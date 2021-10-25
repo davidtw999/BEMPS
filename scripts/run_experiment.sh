@@ -17,7 +17,7 @@ SET=sst5_8544_2210
 MODEL_TYPE=distilbert
 MODEL_NAME=distilbert-base-uncased
 SAVE_MODEL_NAME=distilbert_base_uncased
-SEED=100
+SEED=2019
 ## number of samples are acquired
 INCREMENT=50
 ## acquisition methods names
@@ -30,7 +30,7 @@ INILABELPOOLSIZE=26
 INITRAINSIZE=20
 ## maximum acquired samples
 MAXACQSIZE=550
-## seed number
+## seed number for labelled data
 INILBSEED=100
 ## ensemble seed
 ENMLSEED=1234
@@ -74,19 +74,19 @@ runExp() {
 f=$OUTPUT
 runExp $f $SEED
 
-SEED=1677
+#SEED=1677
+#f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+#runExp $f $SEED
+#
+#SEED=7985
+#f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
+#runExp $f $SEED
+
+SEED=5914
 f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
 runExp $f $SEED
 
-SEED=7985
-f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
-runExp $f $SEED
-
-SEED=12716
-f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
-runExp $f $SEED
-
-SEED=14293
+SEED=42
 f=../models/$TASK_NAME/$SET/$SAVE_MODEL_NAME/$SEED/${SAMPLING}_b${INCREMENT}_e${NOENSEMBLE}
 runExp $f $SEED
 
