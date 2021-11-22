@@ -478,6 +478,8 @@ def main():
 
         label_indices, unlabeled_indices = generate_balance_random_indices(train_dataset, args.ini_label_seed,
                                                                            args.poolsize, args.initrsize)
+
+        print(args.output_dir)
         torch.save(label_indices, os.path.join(args.output_dir, 'labeledPool.pt'))
         torch.save(unlabeled_indices, os.path.join(args.output_dir, 'unLabelPool.pt'))
 

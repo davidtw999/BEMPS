@@ -316,7 +316,7 @@ def kmeans(rr, k):
     centroids_set = np.unique(centroids)
     m = k - len(centroids_set)
     if m > 0:
-        pool = np.delete(np.arange(len(X)), centroids_set)
+        pool = np.delete(np.arange(len(rr)), centroids_set)
         p = np.random.choice(len(pool), m)
         centroids = np.concatenate((centroids_set, pool[p]), axis = None)
     return centroids

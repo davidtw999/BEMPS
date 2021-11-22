@@ -23,7 +23,7 @@ INCREMENT=50
 ## acquisition methods names
 SAMPLING=coremsebatch
 ## number of ensemble models
-NOENSEMBLE=5
+NOENSEMBLE=2
 ## initial labelled samples
 INILABELPOOLSIZE=26
 ## initial labelled samples for the traininig set
@@ -53,7 +53,7 @@ runExp() {
     --data_dir $DATA_DIR/$TASK_NAME/$SET \
     --max_seq_length 128 \
     --learning_rate 2e-5 \
-    --num_train_epochs 30.0 \
+    --num_train_epochs 10.0 \
     --output_dir $1 \
     --new_output_dir $1 \
     --seed $2 \
