@@ -6,7 +6,13 @@ We provide non-batch and batch mode active learning approaches named BEMPS (Baye
 
 Please cite our paper by using the bibex below:
 ```cite
-
+@article{tan2021diversity,
+  title={Diversity Enhanced Active Learning with Strictly Proper Scoring Rules},
+  author={Tan, Wei and Du, Lan and Buntine, Wray},
+  journal={Advances in Neural Information Processing Systems},
+  volume={34},
+  year={2021}
+}
 ```
 
 
