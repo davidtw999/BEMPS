@@ -47,12 +47,12 @@ def bemps_corelog(probs_B_K_C, X):
     pr_Yhat_E_X_Xp_Y_Yh = pr_Yhat_1_X_Xp_Y_Yh.repeat(pr_YhThetaXp_Xp_E_Yh.shape[1],1,1,1,1)
     pr_Yhat_X_Y_Xp_E_Yh = pr_Yhat_E_X_Xp_Y_Yh.transpose(0,3).transpose(0,1)
 
-    core_mse = torch.mul(pr_YhThetaXp_X_Y_Xp_E_Yh, torch.div(pr_YhThetaXp_X_Y_Xp_E_Yh, pr_Yhat_X_Y_Xp_E_Yh))
-    core_mse_X_Y = torch.sum(torch.sum(core_mse.sum(dim=-1), dim=-1),dim=-1)
+    core_log = torch.mul(pr_YhThetaXp_X_Y_Xp_E_Yh, torch.log(torch.div(pr_YhThetaXp_X_Y_Xp_E_Yh, pr_Yhat_X_Y_Xp_E_Yh)))
+    core_log_X_Y = torch.sum(torch.sum(core_log.sum(dim=-1), dim=-1),dim=-1)
 
     ## Calculate RR
     pr_YLX_X_Y = torch.sum(pr_YThetaX_X_Y_E, dim=-1)
-    rr = torch.sum(torch.mul(pr_YLX_X_Y, core_mse_X_Y), dim=-1) / pr_YhThetaXp_Xp_E_Yh.shape[0]
+    rr = torch.sum(torch.mul(pr_YLX_X_Y, core_log_X_Y), dim=-1) / pr_YhThetaXp_Xp_E_Yh.shape[0]
 
     return rr
 
@@ -222,12 +222,12 @@ def bemps_corelog_batch_topk(probs_B_K_C, batch_size, X):
     pr_Yhat_E_X_Xp_Y_Yh = pr_Yhat_1_X_Xp_Y_Yh.repeat(pr_YhThetaXp_Xp_E_Yh.shape[1],1,1,1,1)
     pr_Yhat_X_Y_Xp_E_Yh = pr_Yhat_E_X_Xp_Y_Yh.transpose(0,3).transpose(0,1)
 
-    core_mse = torch.mul(pr_YhThetaXp_X_Y_Xp_E_Yh, torch.div(pr_YhThetaXp_X_Y_Xp_E_Yh, pr_Yhat_X_Y_Xp_E_Yh))
-    core_mse_X_Y = torch.sum(torch.sum(core_mse.sum(dim=-1), dim=-1),dim=-1)
+    core_log = torch.mul(pr_YhThetaXp_X_Y_Xp_E_Yh, torch.log(torch.div(pr_YhThetaXp_X_Y_Xp_E_Yh, pr_Yhat_X_Y_Xp_E_Yh)))
+    core_log_X_Y = torch.sum(torch.sum(core_log.sum(dim=-1), dim=-1),dim=-1)
 
     ## Calculate RR
     pr_YLX_X_Y = torch.sum(pr_YThetaX_X_Y_E, dim=-1)
-    rr = torch.sum(torch.mul(pr_YLX_X_Y, core_mse_X_Y), dim=-1) / pr_YhThetaXp_Xp_E_Yh.shape[0]
+    rr = torch.sum(torch.mul(pr_YLX_X_Y, core_log_X_Y), dim=-1) / pr_YhThetaXp_Xp_E_Yh.shape[0]
 
     return  rr.topk(batch_size).indices.numpy()
 
@@ -265,14 +265,14 @@ def bemps_corelog_batch(probs_B_K_C, batch_size, X, T):
     pr_Yhat_E_X_Xp_Y_Yh = pr_Yhat_1_X_Xp_Y_Yh.repeat(pr_YhThetaXp_Xp_E_Yh.shape[1],1,1,1,1)
     pr_Yhat_X_Y_Xp_E_Yh = pr_Yhat_E_X_Xp_Y_Yh.transpose(0,3).transpose(0,1)
 
-    core_mse = torch.mul(pr_YhThetaXp_X_Y_Xp_E_Yh, torch.div(pr_YhThetaXp_X_Y_Xp_E_Yh, pr_Yhat_X_Y_Xp_E_Yh))
-    core_mse_X_Y_Xp = torch.sum(core_mse.sum(dim=-1), dim=-1)
-    core_mse_X_Xp_Y = torch.transpose(core_mse_X_Y_Xp, 1, 2)
-    core_mse_Xp_X_Y = torch.transpose(core_mse_X_Xp_Y, 0, 1)
+    core_log = torch.mul(pr_YhThetaXp_X_Y_Xp_E_Yh, torch.log(torch.div(pr_YhThetaXp_X_Y_Xp_E_Yh, pr_Yhat_X_Y_Xp_E_Yh)))
+    core_log_X_Y_Xp = torch.sum(core_log.sum(dim=-1), dim=-1)
+    core_log_X_Xp_Y = torch.transpose(core_log_X_Y_Xp, 1, 2)
+    core_log_Xp_X_Y = torch.transpose(core_log_X_Xp_Y, 0, 1)
 
     ## Calculate RR
     pr_YLX_X_Y = torch.sum(pr_YThetaX_X_Y_E, dim=-1)
-    rr_Xp_X_Y = pr_YLX_X_Y.unsqueeze(0) * core_mse_Xp_X_Y
+    rr_Xp_X_Y = pr_YLX_X_Y.unsqueeze(0) * core_log_Xp_X_Y
     rr_Xp_X = torch.sum(rr_Xp_X_Y, dim=-1)
     rr_X_Xp = torch.transpose(rr_Xp_X, 0, 1)
 
